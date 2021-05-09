@@ -113,14 +113,7 @@ private fun readTcxSR() {
         readXmlFile<TrainingCenterDatabase>("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/SR1.tcx")
     println(x)
 
-    val timestamps_utc = x.activities.flatMap { activity ->
-        activity.laps.flatMap { lap ->
-            lap.track.map { trackpoint->
-                trackpoint.time_utc
-            }
-        }
-    }
-
+    val timestamps_utc = x.mapTrackpoints { time_utc }
 
     val timestamps = timestamps_utc.map { ZonedDateTime.parse(it).toEpochSecond() - GARMIN_EPOCH_OFFSET }
     val last = timestamps.last() + x.activities.last().laps.last().totalTime_s.toLong()
@@ -131,15 +124,34 @@ private fun readTcxSR() {
     println(allTimestamps)
     println(allTimestamps.last() - allTimestamps.first())
 
-    val lapTimes = x.activities.flatMap { activity -> activity.laps.map { lap -> lap.totalTime_s } }
+    val lapTimes = x.mapLaps { totalTime_s }
     val totalTime = lapTimes.sum()
 
     println(lapTimes)
     println(totalTime)
     println("${totalTime.roundToInt() / 60}:${totalTime.roundToInt() % 60}")
 
+    val distances = x.mapTrackpoints { distance_m }
+
+    println(distances)
+    println(distances.last())
+
+    val lapDistances = x.mapLaps { distance_m }
+
+    val totalDistance = lapDistances.sum()
+    println(lapDistances)
+    println(totalDistance)
+
+
 //    txcTest()
 }
+
+private fun <T> TrainingCenterDatabase.mapTrackpoints(block: Trackpoint.() -> T) =
+    mapLaps { track.map(block) }.flatten()
+
+
+private fun <T> TrainingCenterDatabase.mapLaps(block: Lap.() -> T) =
+    activities.flatMap { it.laps.map(block) }
 
 private fun txcTest() {
     tcxTpx()
