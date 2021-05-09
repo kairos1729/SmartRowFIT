@@ -1,4 +1,3 @@
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.MapperFeature
@@ -9,6 +8,8 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.io.FileReader
+import java.time.ZonedDateTime
+import kotlin.math.roundToInt
 
 
 data class SmartRowData(
@@ -47,10 +48,16 @@ data class FitRecord(
     val data =
         "Data,6,record,timestamp,$timestamp_s,s,heart_rate,$heartRate_bpm,bpm," +
                 "cadence,$cadence_rpm,rpm,distance,$distance_m,m,speed," +
-                "${String.format("%.3f", speed_m_per_s)},m/s,power,$power_W,watts,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+                "${
+                    String.format(
+                        "%.3f",
+                        speed_m_per_s
+                    )
+                },m/s,power,$power_W,watts,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
 
     companion object {
-        const val definition = "Definition,6,record,timestamp,1,,heart_rate,1,,cadence,1,,distance,1,,speed,1,,power,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
+        const val definition =
+            "Definition,6,record,timestamp,1,,heart_rate,1,,cadence,1,,distance,1,,speed,1,,power,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
     }
 }
 
@@ -59,7 +66,6 @@ fun main() {
     readTcxSR()
 //    readCsvSR()
 }
-
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -76,7 +82,7 @@ data class Activity(
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Lap(
     @JacksonXmlProperty(isAttribute = true, localName = "StartTime") val startTime_utc: String,
-    @JsonProperty("TotalTimeSeconds") val totalTime_s: String,
+    @JsonProperty("TotalTimeSeconds") val totalTime_s: Double,
     @JsonProperty("DistanceMeters") val distance_m: Int,
     @JsonProperty("Calories") val calories: Int,
     @JsonProperty("Track") val track: List<Trackpoint>
@@ -100,7 +106,42 @@ data class Extensions(@JsonProperty("TPX") val tpx: TPX)
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TPX(@JsonProperty("Watts") val watts: Int)
 
+const val GARMIN_EPOCH_OFFSET = 631065600
+
 private fun readTcxSR() {
+    val x =
+        readXmlFile<TrainingCenterDatabase>("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/SR1.tcx")
+    println(x)
+
+    val timestamps_utc = x.activities.flatMap { activity ->
+        activity.laps.flatMap { lap ->
+            lap.track.map { trackpoint->
+                trackpoint.time_utc
+            }
+        }
+    }
+
+
+    val timestamps = timestamps_utc.map { ZonedDateTime.parse(it).toEpochSecond() - GARMIN_EPOCH_OFFSET }
+    val last = timestamps.last() + x.activities.last().laps.last().totalTime_s.toLong()
+    val allTimestamps = timestamps + listOf(last)
+
+
+    println(allTimestamps.count())
+    println(allTimestamps)
+    println(allTimestamps.last() - allTimestamps.first())
+
+    val lapTimes = x.activities.flatMap { activity -> activity.laps.map { lap -> lap.totalTime_s } }
+    val totalTime = lapTimes.sum()
+
+    println(lapTimes)
+    println(totalTime)
+    println("${totalTime.roundToInt() / 60}:${totalTime.roundToInt() % 60}")
+
+//    txcTest()
+}
+
+private fun txcTest() {
     tcxTpx()
     tcxExtensions()
     tcxTrackpoint()
@@ -431,4 +472,4 @@ inline fun <reified T> readXmlFile(fileName: String): T =
     }
 
 inline fun <reified T> readXmlString(xml: String): T =
-        xmlMapper.readValue(xml, T::class.java)
+    xmlMapper.readValue(xml, T::class.java)
