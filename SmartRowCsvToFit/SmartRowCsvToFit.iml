@@ -12,5 +12,6 @@
     <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
     <orderEntry type="library" name="com.fasterxml.jackson.module:jackson-module-kotlin:2.12.3" level="project" />
     <orderEntry type="library" name="com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.12.3" level="project" />
+    <orderEntry type="library" name="com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.3" level="project" />
   </component>
 </module>

@@ -1,6 +1,11 @@
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.dataformat.csv.CsvMapper
+import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.io.FileReader
 
 
@@ -49,6 +54,64 @@ data class FitRecord(
 
 
 fun main() {
+    readTcxSR()
+//    readCsvSR()
+}
+
+
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class Trackpoint(
+    @JsonProperty("Time") val time_utc: String,
+    @JsonProperty("DistanceMeters") val distance_m: Int,
+    @JsonProperty("Cadence") val cadence_rpm: Double,
+    @JsonProperty("HeartRateBpm") val heartRate_bpm: HeartRateBpm,
+    @JsonProperty("Extensions") val extensions: Extensions,
+)
+data class HeartRateBpm(@JsonProperty("Value") val value: Int)
+data class Extensions(@JsonProperty("TPX") val tpx: TPX)
+data class TPX(@JsonProperty("Watts") val watts: Int)
+
+private fun readTcxSR() {
+    tcxTpx()
+    tcxExtensions()
+    tcxTrackpoint()
+}
+
+private fun tcxTrackpoint() {
+    val xs = """
+        <x>
+      <Time>2021-04-09T23:55:47Z</Time>
+      <DistanceMeters>5507</DistanceMeters>
+      <SensorState>Present</SensorState>
+      <Cadence>31.7</Cadence>
+      <HeartRateBpm>
+       <Value>142</Value>
+      </HeartRateBpm>
+      <Extensions>
+       <TPX xmlns="http://www.garmin.com/xmlschemas/ActivityExtension/v2">
+        <Watts>197</Watts>
+       </TPX>
+      </Extensions>        
+        </x>
+    """
+    val x = readXmlString<Trackpoint>(xs)
+    println("ext=$x")
+}
+
+private fun tcxExtensions() {
+    val xs = "<x><TPX><Watts>120</Watts></TPX></x>"
+    val x = readXmlString<Extensions>(xs)
+    println("ext=$x")
+}
+
+private fun tcxTpx() {
+    val xs = "<x><Watts>101</Watts></x>"
+    val x = readXmlString<TPX>(xs)
+    println("txp=$x")
+}
+
+private fun readCsvSR() {
     val smartRowDataList =
         readCsvFile<SmartRowData>("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/2021-04-09T232928_5946m.csv")
 
@@ -119,3 +182,15 @@ inline fun <reified T> readCsvFile(fileName: String): List<T> {
             .toList()
     }
 }
+
+val xmlMapper = XmlMapper().apply {
+    registerKotlinModule()
+}
+
+inline fun <reified T> readXmlFile(fileName: String): T =
+    FileReader(fileName).use { reader ->
+        xmlMapper.readValue(reader, T::class.java)
+    }
+
+inline fun <reified T> readXmlString(xml: String): T =
+        xmlMapper.readValue(xml, T::class.java)
