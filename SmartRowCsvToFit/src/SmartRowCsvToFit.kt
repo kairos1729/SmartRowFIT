@@ -63,6 +63,11 @@ fun main() {
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+data class TrainingCenterDatabase(
+    @JsonProperty("Activities") val activities: List<Activity>
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class Activity(
     @JacksonXmlElementWrapper(useWrapping = false)
     @JsonProperty("Lap") val laps: List<Lap>
@@ -101,6 +106,115 @@ private fun readTcxSR() {
     tcxTrackpoint()
     tcxLap()
     tcxActivity()
+    tcxTrainingCenterDatabase()
+}
+
+private fun tcxTrainingCenterDatabase() {
+    val xs = """
+    <x>
+    <Activities>
+     <Activity>
+   <Lap StartTime="2000-00-00T00:00:00Z">
+    <TotalTimeSeconds>136.04</TotalTimeSeconds>
+    <DistanceMeters>500</DistanceMeters>
+    <Calories>20</Calories>
+    <Intensity>Active</Intensity>
+    <TriggerMethod>Distance</TriggerMethod>
+    <Track>
+     <Trackpoint>
+      <Time>2021-04-09T23:29:31Z</Time>
+      <DistanceMeters>8</DistanceMeters>
+      <SensorState>Present</SensorState>
+      <Cadence>0</Cadence>
+      <HeartRateBpm>
+       <Value>85</Value>
+      </HeartRateBpm>
+      <Extensions>
+       <TPX xmlns="http://www.garmin.com/xmlschemas/ActivityExtension/v2">
+        <Watts>0</Watts>
+       </TPX>
+      </Extensions>
+     </Trackpoint>
+     </Track>
+     </Lap>
+   <Lap StartTime="2022-02-02T22:22:22Z">
+    <TotalTimeSeconds>136.04</TotalTimeSeconds>
+    <DistanceMeters>500</DistanceMeters>
+    <Calories>20</Calories>
+    <Intensity>Active</Intensity>
+    <TriggerMethod>Distance</TriggerMethod>
+    <Track>
+     <Trackpoint>
+      <Time>2021-04-09T23:29:31Z</Time>
+      <DistanceMeters>8</DistanceMeters>
+      <SensorState>Present</SensorState>
+      <Cadence>0</Cadence>
+      <HeartRateBpm>
+       <Value>85</Value>
+      </HeartRateBpm>
+      <Extensions>
+       <TPX xmlns="http://www.garmin.com/xmlschemas/ActivityExtension/v2">
+        <Watts>0</Watts>
+       </TPX>
+      </Extensions>
+     </Trackpoint>
+     </Track>
+     </Lap>
+     </Activity>
+     <Activity>
+   <Lap StartTime="2021-04-09T23:29:28Z">
+    <TotalTimeSeconds>136.04</TotalTimeSeconds>
+    <DistanceMeters>500</DistanceMeters>
+    <Calories>20</Calories>
+    <Intensity>Active</Intensity>
+    <TriggerMethod>Distance</TriggerMethod>
+    <Track>
+     <Trackpoint>
+      <Time>2021-04-09T23:29:31Z</Time>
+      <DistanceMeters>8</DistanceMeters>
+      <SensorState>Present</SensorState>
+      <Cadence>0</Cadence>
+      <HeartRateBpm>
+       <Value>85</Value>
+      </HeartRateBpm>
+      <Extensions>
+       <TPX xmlns="http://www.garmin.com/xmlschemas/ActivityExtension/v2">
+        <Watts>0</Watts>
+       </TPX>
+      </Extensions>
+     </Trackpoint>
+     </Track>
+     </Lap>
+   <Lap StartTime="2022-02-02T22:22:22Z">
+    <TotalTimeSeconds>136.04</TotalTimeSeconds>
+    <DistanceMeters>500</DistanceMeters>
+    <Calories>20</Calories>
+    <Intensity>Active</Intensity>
+    <TriggerMethod>Distance</TriggerMethod>
+    <Track>
+     <Trackpoint>
+      <Time>2021-04-09T23:29:31Z</Time>
+      <DistanceMeters>8</DistanceMeters>
+      <SensorState>Present</SensorState>
+      <Cadence>0</Cadence>
+      <HeartRateBpm>
+       <Value>85</Value>
+      </HeartRateBpm>
+      <Extensions>
+       <TPX xmlns="http://www.garmin.com/xmlschemas/ActivityExtension/v2">
+        <Watts>0</Watts>
+       </TPX>
+      </Extensions>
+     </Trackpoint>
+     </Track>
+     </Lap>
+     </Activity>
+         </Activities>
+
+        </x>
+    """
+    val x = readXmlString<TrainingCenterDatabase>(xs)
+    println("activity=$x")
 }
 
 private fun tcxActivity() {
