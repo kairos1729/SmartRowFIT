@@ -63,8 +63,8 @@ data class FitRecord(
 
 
 fun main() {
-    readTcxSR()
-//    readCsvSR()
+    readTcxAndCsvSR()
+//    convertSRToFitCsv()
 }
 
 
@@ -108,15 +108,17 @@ data class TPX(@JsonProperty("Watts") val watts: Int)
 
 const val GARMIN_EPOCH_OFFSET = 631065600
 
-private fun readTcxSR() {
-    val x =
+private fun readTcxAndCsvSR() {
+    val tcx =
         readXmlFile<TrainingCenterDatabase>("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/SR1.tcx")
-    println(x)
 
-    val timestamps_utc = x.mapTrackpoints { time_utc }
+    val csvRows =
+        readCsvFile<SmartRowData>("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/SR1.csv")
+
+    val timestamps_utc = listOf(tcx.mapLaps { startTime_utc }.first()) + tcx.mapTrackpoints { time_utc }
 
     val timestamps = timestamps_utc.map { ZonedDateTime.parse(it).toEpochSecond() - GARMIN_EPOCH_OFFSET }
-    val last = timestamps.last() + x.activities.last().laps.last().totalTime_s.toLong()
+    val last = timestamps.last() + tcx.activities.last().laps.last().totalTime_s.toLong()
     val allTimestamps = timestamps + listOf(last)
 
 
@@ -124,24 +126,68 @@ private fun readTcxSR() {
     println(allTimestamps)
     println(allTimestamps.last() - allTimestamps.first())
 
-    val lapTimes = x.mapLaps { totalTime_s }
+    val lapTimes = tcx.mapLaps { totalTime_s }
     val totalTime = lapTimes.sum()
 
     println(lapTimes)
     println(totalTime)
     println("${totalTime.roundToInt() / 60}:${totalTime.roundToInt() % 60}")
 
-    val distances = x.mapTrackpoints { distance_m }
+    val distances = tcx.mapTrackpoints { distance_m }
 
     println(distances)
     println(distances.last())
 
-    val lapDistances = x.mapLaps { distance_m }
+    val lapDistances = tcx.mapLaps { distance_m }
 
     val totalDistance = lapDistances.sum()
     println(lapDistances)
     println(totalDistance)
 
+
+    val calories = tcx.mapLaps { calories }
+    println(calories)
+    println(calories.sum())
+
+    val work = csvRows.sumByDouble { it.work_J }
+    val time_s = csvRows.last().seconds - csvRows.first().seconds
+    val averagePower = work / time_s
+
+    println("csv: work=$work, time=$time_s, average power from work = $averagePower")
+    val averagepowerW = csvRows.last().averagePower_W
+    println("csv: average power = $averagepowerW")
+    println("csv: peak power = ${csvRows.maxOf(SmartRowData::actualPower_W)}")
+
+    val csvSeconds = csvRows.map { it.seconds }
+    val intervals = csvSeconds.zipWithNext { a, b -> b - a }
+
+    println("csv: $csvSeconds")
+    println("csv: $intervals")
+
+    val heartRatesCsv = csvRows.map { it.heartRate_bpm }.drop(1)
+    val heartBeatsSixtieths = heartRatesCsv.zip(intervals) { r, i -> r * i }
+    val totalHeartBeatsSixtieths = heartBeatsSixtieths.sum()
+    val aveHeartRateBpm = totalHeartBeatsSixtieths / time_s
+
+    println(heartRatesCsv)
+    println(heartBeatsSixtieths)
+    println(totalHeartBeatsSixtieths)
+    println(aveHeartRateBpm)
+
+    val tcxintervals = allTimestamps.zipWithNext { a, b -> b - a }
+    println(tcxintervals)
+    val tcxheartrates = tcx.mapTrackpoints { heartRate_bpm.value }
+    val tcxheartBeatsSixtieths = tcxheartrates.zip(tcxintervals) { r, i -> r * i }
+    val tcxtotalHeartBeatsSixtieths = tcxheartBeatsSixtieths.sum()
+    val tcxaveHeartRateBpm = tcxtotalHeartBeatsSixtieths / time_s
+
+    println(tcxheartrates)
+    println(tcxheartBeatsSixtieths)
+    println(tcxtotalHeartBeatsSixtieths)
+    println(tcxaveHeartRateBpm)
+
+    val workPerSixtiethHB = work / totalHeartBeatsSixtieths
+    println(workPerSixtiethHB)
 
 //    txcTest()
 }
@@ -402,11 +448,9 @@ private fun tcxTpx() {
     println("txp=$x")
 }
 
-private fun readCsvSR() {
+private fun convertSRToFitCsv() {
     val smartRowDataList =
         readCsvFile<SmartRowData>("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/2021-04-09T232928_5946m.csv")
-
-    //println(smartRowDataList.joinToString("\n"))
 
     val fitRecords = smartRowDataList.map(SmartRowData::toFitRecord)
 
@@ -435,12 +479,6 @@ private fun readCsvSR() {
     }
 
     println("""Data,4,event,timestamp,247,s,event,0,,event_type,0,,timer_trigger,0,,event_group,0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,""")
-
-    val work = smartRowDataList.sumByDouble { it.work_J }
-    val time = smartRowDataList.last().seconds - smartRowDataList.first().seconds
-    val averagePower = work / time
-
-    println("work=$work, time=$time, average power = $averagePower")
 }
 
 fun SmartRowData.toFitRecord() = FitRecord(
