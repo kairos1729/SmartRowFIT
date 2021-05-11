@@ -11,6 +11,12 @@ data class TrainingCenterDatabase(
     companion object {
         fun from(tcxFileName: String) = readXmlFile<TrainingCenterDatabase>(tcxFileName)
     }
+
+    fun <T> mapTrackpoints(block: Trackpoint.() -> T) =
+        mapLaps { track.map(block) }.flatten()
+
+    fun <T> mapLaps(block: Lap.() -> T) =
+        activities.flatMap { it.laps.map(block) }
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

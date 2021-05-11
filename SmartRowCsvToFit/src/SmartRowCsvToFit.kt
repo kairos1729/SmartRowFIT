@@ -93,13 +93,6 @@ private fun readTcxAndCsvSR() {
 //    txcTest()
 }
 
-private fun <T> TrainingCenterDatabase.mapTrackpoints(block: Trackpoint.() -> T) =
-    mapLaps { track.map(block) }.flatten()
-
-
-private fun <T> TrainingCenterDatabase.mapLaps(block: Lap.() -> T) =
-    activities.flatMap { it.laps.map(block) }
-
 private fun txcTest() {
     tcxTpx()
     tcxExtensions()
