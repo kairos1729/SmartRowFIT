@@ -2,6 +2,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
+import java.time.ZonedDateTime
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class TrainingCenterDatabase(
@@ -25,7 +26,9 @@ data class Lap(
     @JsonProperty("DistanceMeters") val distance_m: Int,
     @JsonProperty("Calories") val calories: Int,
     @JsonProperty("Track") val track: List<Trackpoint>
-)
+) {
+    val startTime_garminEpochSecond = startTime_utc.toGarminEpochSecond()
+}
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Trackpoint(
@@ -34,7 +37,14 @@ data class Trackpoint(
     @JsonProperty("Cadence") val cadence_rpm: Double,
     @JsonProperty("HeartRateBpm") val heartRate_bpm: HeartRateBpm,
     @JsonProperty("Extensions") val extensions: Extensions,
-)
+) {
+    val time_garminEpochSecond = time_utc.toGarminEpochSecond()
+}
+
+private const val GARMIN_EPOCH_OFFSET = 631065600
+
+private fun String.toGarminEpochSecond() =
+    ZonedDateTime.parse(this).toEpochSecond() - GARMIN_EPOCH_OFFSET
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class HeartRateBpm(@JsonProperty("Value") val value: Int)

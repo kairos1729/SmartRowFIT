@@ -1,5 +1,4 @@
 
-import java.time.ZonedDateTime
 import kotlin.math.roundToInt
 
 
@@ -40,13 +39,12 @@ data class FitRecord(
 
 
 fun main() {
-//    readTcxAndCsvSR()
+    readTcxAndCsvSR()
     convertSRToFitCsv()
 }
 
 
 
-const val GARMIN_EPOCH_OFFSET = 631065600
 
 private fun readTcxAndCsvSR() {
     val tcx =
@@ -55,9 +53,8 @@ private fun readTcxAndCsvSR() {
     val csvRows =
         SmartRowData.rowsFrom("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/SR1.csv")
 
-    val timestamps_utc = listOf(tcx.mapLaps { startTime_utc }.first()) + tcx.mapTrackpoints { time_utc }
+    val timestamps = listOf(tcx.mapLaps { startTime_garminEpochSecond }.first()) + tcx.mapTrackpoints { time_garminEpochSecond }
 
-    val timestamps = timestamps_utc.map { ZonedDateTime.parse(it).toEpochSecond() - GARMIN_EPOCH_OFFSET }
     val last = timestamps.last() + tcx.activities.last().laps.last().totalTime_s.toLong()
     val allTimestamps = timestamps + listOf(last)
 
