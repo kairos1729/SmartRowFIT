@@ -1,8 +1,20 @@
 
+import com.garmin.fit.csv.CSVTool
+import java.lang.reflect.Method
+import java.nio.file.Paths
 import kotlin.math.roundToInt
 
 
 fun main() {
+    val path = Paths.get("").toAbsolutePath().toString()
+    println(path)
+    val sa = arrayOf("")
+    val declaredConstructor = CSVTool::class.java.getDeclaredConstructor()
+    declaredConstructor.isAccessible = true
+    val x = declaredConstructor.newInstance()
+    val method: Method = CSVTool::class.java.getDeclaredMethod("run", sa.javaClass)
+    method.isAccessible = true
+    method.invoke(x, arrayOf("a","-b", "dominic/blah.fit", "dominic/coocoo.csv", "-u", "-re"))
     readTcxAndCsvSR()
     convertSRToFitCsv()
 }
