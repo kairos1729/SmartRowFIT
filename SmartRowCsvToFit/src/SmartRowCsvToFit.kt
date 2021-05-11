@@ -2,42 +2,6 @@
 import kotlin.math.roundToInt
 
 
-const val FILE_ID_DEFINITION =
-    "Definition,0,file_id,type,1,,manufacturer,1,,product,1,,serial_number,1,,time_created,1,,number,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
-const val FILE_ID_DATA =
-    """Data,0,file_id,type,4,,manufacturer,118,,product,0,,time_created,0,,number,0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"""
-
-const val DEVICE_INFO_DEFINITION =
-    """Definition,1,device_info,timestamp,1,,device_index,1,,device_type,1,,manufacturer,1,,serial_number,1,,product,1,,software_version,1,,hardware_version,1,,cum_operating_time,1,,battery_voltage,1,,battery_status,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"""
-const val DEVICE_INFO_DATA =
-    """Data,1,device_info,timestamp,0,s,device_index,0,,device_type,0,,manufacturer,118,,product,0,,software_version,1,,hardware_version,0,,cum_operating_time,0,s,battery_voltage,0,V,battery_status,0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"""
-
-data class FitRecord(
-    val timestamp_s: Int,
-    val heartRate_bpm: Int,
-    val cadence_rpm: Double,
-    val distance_m: Int,
-    val speed_m_per_s: Double,
-    val power_W: Int
-) {
-
-    val data =
-        "Data,6,record,timestamp,$timestamp_s,s,heart_rate,$heartRate_bpm,bpm," +
-                "cadence,$cadence_rpm,rpm,distance,$distance_m,m,speed," +
-                "${
-                    String.format(
-                        "%.3f",
-                        speed_m_per_s
-                    )
-                },m/s,power,$power_W,watts,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
-
-    companion object {
-        const val definition =
-            "Definition,6,record,timestamp,1,,heart_rate,1,,cadence,1,,distance,1,,speed,1,,power,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,"
-    }
-}
-
-
 fun main() {
     readTcxAndCsvSR()
     convertSRToFitCsv()
@@ -394,10 +358,10 @@ private fun convertSRToFitCsv() {
 
     println("""Type,Local Number,Message,Field 1,Value 1,Units 1,Field 2,Value 2,Units 2,Field 3,Value 3,Units 3,Field 4,Value 4,Units 4,Field 5,Value 5,Units 5,Field 6,Value 6,Units 6,Field 7,Value 7,Units 7,Field 8,Value 8,Units 8,Field 9,Value 9,Units 9,Field 10,Value 10,Units 10,Field 11,Value 11,Units 11,Field 12,Value 12,Units 12,Field 13,Value 13,Units 13,Field 14,Value 14,Units 14,Field 15,Value 15,Units 15,Field 16,Value 16,Units 16,Field 17,Value 17,Units 17,Field 18,Value 18,Units 18,Field 19,Value 19,Units 19,Field 20,Value 20,Units 20,Field 21,Value 21,Units 21,Field 22,Value 22,Units 22,Field 23,Value 23,Units 23,Field 24,Value 24,Units 24""")
 
-    println(FILE_ID_DEFINITION)
-    println(FILE_ID_DATA)
-    println(DEVICE_INFO_DEFINITION)
-    println(DEVICE_INFO_DATA)
+    println(FitDeviceInfo.definition)
+    println(FitDeviceInfo.data)
+    println(FitFileId.definition)
+    println(FitFileId.data)
 
 
     println("""Definition,2,activity,timestamp,1,,total_timer_time,1,,num_sessions,1,,type,1,,event,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,""")
@@ -419,12 +383,12 @@ private fun convertSRToFitCsv() {
 }
 
 fun SmartRowData.toFitRecord() = FitRecord(
-    seconds,
-    heartRate_bpm,
-    strokeRate_spm,
-    distance_m,
-    500.0 / actualSplit_s,
-    actualPower_W
+    timestamp_s = seconds,
+    heartRate_bpm = heartRate_bpm,
+    cadence_rpm = strokeRate_spm,
+    distance_m = distance_m,
+    speed_m_per_s = 500.0 / actualSplit_s,
+    power_W = actualPower_W
 )
 
 
