@@ -1,29 +1,6 @@
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.MapperFeature
-import com.fasterxml.jackson.dataformat.csv.CsvMapper
-import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import java.io.FileReader
+
 import java.time.ZonedDateTime
 import kotlin.math.roundToInt
-
-
-data class SmartRowData(
-    val strokes: Int = 0,
-    val seconds: Int = 0,
-    val distance_m: Int = 0,
-    val work_J: Double = 0.0,
-    val actualPower_W: Int = 0,
-    val averagePower_W: Double = 0.0,
-    val actualSplit_s: Int = 0,
-    val averageSplit_s: Int = 0,
-    val strokeRate_spm: Double = 0.0,
-    val heartRate_bpm: Int = 0
-)
 
 
 const val FILE_ID_DEFINITION =
@@ -63,57 +40,20 @@ data class FitRecord(
 
 
 fun main() {
-    readTcxAndCsvSR()
-//    convertSRToFitCsv()
+//    readTcxAndCsvSR()
+    convertSRToFitCsv()
 }
 
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class TrainingCenterDatabase(
-    @JsonProperty("Activities") val activities: List<Activity>
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class Activity(
-    @JacksonXmlElementWrapper(useWrapping = false)
-    @JsonProperty("Lap") val laps: List<Lap>
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class Lap(
-    @JacksonXmlProperty(isAttribute = true, localName = "StartTime") val startTime_utc: String,
-    @JsonProperty("TotalTimeSeconds") val totalTime_s: Double,
-    @JsonProperty("DistanceMeters") val distance_m: Int,
-    @JsonProperty("Calories") val calories: Int,
-    @JsonProperty("Track") val track: List<Trackpoint>
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class Trackpoint(
-    @JsonProperty("Time") val time_utc: String,
-    @JsonProperty("DistanceMeters") val distance_m: Int,
-    @JsonProperty("Cadence") val cadence_rpm: Double,
-    @JsonProperty("HeartRateBpm") val heartRate_bpm: HeartRateBpm,
-    @JsonProperty("Extensions") val extensions: Extensions,
-)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class HeartRateBpm(@JsonProperty("Value") val value: Int)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class Extensions(@JsonProperty("TPX") val tpx: TPX)
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class TPX(@JsonProperty("Watts") val watts: Int)
 
 const val GARMIN_EPOCH_OFFSET = 631065600
 
 private fun readTcxAndCsvSR() {
     val tcx =
-        readXmlFile<TrainingCenterDatabase>("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/SR1.tcx")
+        TrainingCenterDatabase.from("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/SR1.tcx")
 
     val csvRows =
-        readCsvFile<SmartRowData>("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/SR1.csv")
+        SmartRowData.rowsFrom("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/SR1.csv")
 
     val timestamps_utc = listOf(tcx.mapLaps { startTime_utc }.first()) + tcx.mapTrackpoints { time_utc }
 
@@ -491,35 +431,3 @@ fun SmartRowData.toFitRecord() = FitRecord(
 )
 
 
-val csvMapper = CsvMapper().apply {
-    registerModule(KotlinModule())
-}
-
-inline fun <reified T> readCsvFile(fileName: String): List<T> {
-    FileReader(fileName).use { reader ->
-        return csvMapper
-            .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
-            .readerFor(T::class.java)
-            .with(
-                csvMapper
-                    .schemaFor(T::class.java)
-                    .withSkipFirstDataRow(true)
-                    .withNullValue(" ")
-            )
-            .readValues<T>(reader)
-            .readAll()
-            .toList()
-    }
-}
-
-val xmlMapper = XmlMapper().apply {
-    registerKotlinModule()
-}
-
-inline fun <reified T> readXmlFile(fileName: String): T =
-    FileReader(fileName).use { reader ->
-        xmlMapper.readValue(reader, T::class.java)
-    }
-
-inline fun <reified T> readXmlString(xml: String): T =
-    xmlMapper.readValue(xml, T::class.java)
