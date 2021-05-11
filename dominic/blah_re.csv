@@ -18,7 +18,7 @@ Data,4,event,timestamp,988241855,s,event,0,,event_type,0,,timer_trigger,0,,event
 Definition,5,lap,timestamp,1,,start_time,1,,total_elapsed_time,1,,total_timer_time,1,,total_distance,1,,total_cycles,1,,message_index,1,,total_calories,1,,total_fat_calories,1,,avg_speed,1,,max_speed,1,,avg_power,1,,max_power,1,,total_ascent,1,,total_descent,1,,event,1,,event_type,1,,avg_heart_rate,1,,max_heart_rate,1,,avg_cadence,1,,max_cadence,1,,intensity,1,,lap_trigger,1,,sport,1,
 Data,5,lap,timestamp,988242005,s,start_time,988241855,,total_elapsed_time,149.4,s,total_timer_time,149.4,s,total_distance,499.99,m,total_cycles,0,cycles,message_index,0,,total_calories,0,kcal,total_fat_calories,0,kcal,avg_speed,3.346,m/s,max_speed,0,m/s,avg_power,105,watts,max_power,0,watts,total_ascent,0,m,total_descent,0,m,event,0,,event_type,0,,avg_heart_rate,0,bpm,max_heart_rate,0,bpm,avg_cadence,22,rpm,max_cadence,0,rpm,intensity,0,,lap_trigger,0,,sport,0,
 
-Definition,6,record,timestamp,1,,heart_rate,1,,cadence,1,,distance,1,,speed,1,,power,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Definition,6,record,timestamp,1,,heart_rate,1,,cadence,1,,distance,1,,speed,1,,power,1,z,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 Data,6,record,timestamp,988241857,s,heart_rate,87,bpm,cadence,0,rpm,distance,4,m,speed,2.016,m/s,power,23,watts,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 Data,6,record,timestamp,988241858,s,heart_rate,88,bpm,cadence,0,rpm,distance,7,m,speed,2.016,m/s,power,23,watts,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 Data,6,record,timestamp,988241859,s,heart_rate,89,bpm,cadence,54,rpm,distance,10.99,m,speed,2.923,m/s,power,70,watts,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
