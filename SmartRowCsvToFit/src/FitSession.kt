@@ -1,5 +1,7 @@
 data class FitSession(
     val timestamp_garminEpochSeconds: Int,
+    val event: Int,
+    val eventType: Int,
     val startTime_garminEpochSeconds: Int,
     val sport: Int,
     val subSport: Int,
@@ -23,13 +25,19 @@ data class FitSession(
     val enhancedMaxSpeed_mPerSec: Double
 ) {
     val data =
-        "Data,3,session,timestamp,\"988241855\",s,event,\"0\",,event_type,\"0\",,start_time,\"988241855\",," +
-                "sport,\"4\",,sub_sport,\"14\",,total_elapsed_time,\"264.1\",s,total_timer_time,\"264.1\",s," +
-                "total_distance,\"1147.99\",m,total_cycles,\"130\",cycles,total_calories,\"80\",kcal," +
-                "avg_speed,\"4.346\",m/s,max_speed,\"4.587\",m/s,avg_heart_rate,\"121\",bpm,max_heart_rate,\"151\"," +
-                "bpm,avg_cadence,\"27\",rpm,max_cadence,\"92\",rpm,avg_power,\"230\",watts,max_power,\"270\",watts," +
-                "first_lap_index,\"0\",,num_laps,\"3\",,message_index,\"0\",,enhanced_avg_speed,\"4.346\",m/s," +
-                "enhanced_max_speed,\"4.587\",m/s,"
+        "Data,3,session,timestamp,$timestamp_garminEpochSeconds,s,event,$event,,event_type,$eventType,," +
+                "start_time,$startTime_garminEpochSeconds,," +
+                "sport,$sport,,sub_sport,$subSport,,total_elapsed_time,$totalElapsedTime_s,s," +
+                "total_timer_time,$totalTimerTime_s,s," +
+                "total_distance,$totalDistance_s,m,total_cycles,$totalCycles,cycles," +
+                "total_calories,$totalCalories_kCal,kcal," +
+                "avg_speed,$averageSpeed_mPerSec,m/s,max_speed,$maxSpeed_mPerSec,m/s," +
+                "avg_heart_rate,$averageHeartRate_bpm,bpm,max_heart_rate,$maxHeartRate_bpm," +
+                "bpm,avg_cadence,$averageCadence_rpm,rpm,max_cadence,$maxCadence_rpm,rpm," +
+                "avg_power,$averagePower_watts,watts,max_power,$maxPower_watts,watts," +
+                "first_lap_index,$firstLapIndex,,num_laps,$numLaps,," +
+                "message_index,$messageIndex,,enhanced_avg_speed,$enhancedAverageSpeed_mPerSec,m/s," +
+                "enhanced_max_speed,$enhancedMaxSpeed_mPerSec,m/s,"
 
     companion object {
         const val definition =
