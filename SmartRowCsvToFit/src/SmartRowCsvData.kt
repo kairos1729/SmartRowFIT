@@ -1,4 +1,4 @@
-data class SmartRowData(
+data class SmartRowCsvData(
     val strokes: Int = 0,
     val seconds: Int = 0,
     val distance_m: Int = 0,
@@ -11,6 +11,6 @@ data class SmartRowData(
     val heartRate_bpm: Int = 0
 ) {
     companion object {
-        fun rowsFrom(csvFileName: String) = readCsvFile<SmartRowData>(csvFileName)
+        fun rowsFrom(csvFileName: String) = readCsvFile<SmartRowCsvData>(csvFileName)
     }
 }

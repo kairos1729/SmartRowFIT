@@ -24,7 +24,7 @@ private fun readTcxAndCsvSR() {
         TrainingCenterDatabase.from("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/SR1.tcx")
 
     val csvRows =
-        SmartRowData.rowsFrom("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/SR1.csv")
+        SmartRowCsvData.rowsFrom("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/SR1.csv")
 
     val timestamps = listOf(tcx.mapLaps { startTime_garminEpochSecond }.first()) + tcx.mapTrackpoints { time_garminEpochSecond }
 
@@ -66,7 +66,7 @@ private fun readTcxAndCsvSR() {
     println("csv: work=$work, time=$time_s, average power from work = $averagePower")
     val averagepowerW = csvRows.last().averagePower_W
     println("csv: average power = $averagepowerW")
-    println("csv: peak power = ${csvRows.maxOf(SmartRowData::actualPower_W)}")
+    println("csv: peak power = ${csvRows.maxOf(SmartRowCsvData::actualPower_W)}")
 
     val csvSeconds = csvRows.map { it.seconds }
     val intervals = csvSeconds.zipWithNext { a, b -> b - a }
@@ -353,17 +353,17 @@ private fun tcxTpx() {
 
 private fun convertSRToFitCsv() {
     val smartRowDataList =
-        readCsvFile<SmartRowData>("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/2021-04-09T232928_5946m.csv")
+        readCsvFile<SmartRowCsvData>("/Users/dominic.godwin/Developer/FitSDKRelease_21.53.00/dominic/2021-04-09T232928_5946m.csv")
 
-    val fitRecords = smartRowDataList.map(SmartRowData::toFitRecord)
+    val fitRecords = smartRowDataList.map(SmartRowCsvData::toFitRecord)
 
 
     println("""Type,Local Number,Message,Field 1,Value 1,Units 1,Field 2,Value 2,Units 2,Field 3,Value 3,Units 3,Field 4,Value 4,Units 4,Field 5,Value 5,Units 5,Field 6,Value 6,Units 6,Field 7,Value 7,Units 7,Field 8,Value 8,Units 8,Field 9,Value 9,Units 9,Field 10,Value 10,Units 10,Field 11,Value 11,Units 11,Field 12,Value 12,Units 12,Field 13,Value 13,Units 13,Field 14,Value 14,Units 14,Field 15,Value 15,Units 15,Field 16,Value 16,Units 16,Field 17,Value 17,Units 17,Field 18,Value 18,Units 18,Field 19,Value 19,Units 19,Field 20,Value 20,Units 20,Field 21,Value 21,Units 21,Field 22,Value 22,Units 22,Field 23,Value 23,Units 23,Field 24,Value 24,Units 24""")
 
     println(FitDeviceInfo.definition)
-    println(FitDeviceInfo.data)
+    println(FitDeviceInfo(118).data)
     println(FitFileId.definition)
-    println(FitFileId.data)
+    println(FitFileId(118).data)
 
 
     println("""Definition,2,activity,timestamp,1,,total_timer_time,1,,num_sessions,1,,type,1,,event,1,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,""")
@@ -384,7 +384,7 @@ private fun convertSRToFitCsv() {
     println("""Data,4,event,timestamp,247,s,event,0,,event_type,0,,timer_trigger,0,,event_group,0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,""")
 }
 
-fun SmartRowData.toFitRecord() = FitRecord(
+fun SmartRowCsvData.toFitRecord() = FitRecord(
     timestamp_s = seconds,
     heartRate_bpm = heartRate_bpm,
     cadence_rpm = strokeRate_spm,

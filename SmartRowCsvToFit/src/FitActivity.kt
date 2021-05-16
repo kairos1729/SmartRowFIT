@@ -1,6 +1,6 @@
 data class FitActivity(
-    val timestamp_garminEpochSeconds: Int,
-    val totalTimerTime_s: Int,
+    val timestamp_garminEpochSeconds: Long,
+    val totalTimerTime_s: Double,
     val numSessions: Int,
     val type: Int,
     val event: Int
