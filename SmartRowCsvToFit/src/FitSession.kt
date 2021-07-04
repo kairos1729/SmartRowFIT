@@ -1,13 +1,13 @@
 data class FitSession(
-    val timestamp_garminEpochSeconds: Int,
+    val timestamp_garminEpochSeconds: Long,
     val event: Int,
     val eventType: Int,
-    val startTime_garminEpochSeconds: Int,
+    val startTime_garminEpochSeconds: Long,
     val sport: Int,
     val subSport: Int,
     val totalElapsedTime_s: Double,
     val totalTimerTime_s: Double,
-    val totalDistance_s: Double,
+    val totalDistance_m: Double,
     val totalCycles: Int,
     val totalCalories_kCal: Int,
     val averageSpeed_mPerSec: Double,
@@ -29,7 +29,7 @@ data class FitSession(
                 "start_time,$startTime_garminEpochSeconds,," +
                 "sport,$sport,,sub_sport,$subSport,,total_elapsed_time,$totalElapsedTime_s,s," +
                 "total_timer_time,$totalTimerTime_s,s," +
-                "total_distance,$totalDistance_s,m,total_cycles,$totalCycles,cycles," +
+                "total_distance,$totalDistance_m,m,total_cycles,$totalCycles,cycles," +
                 "total_calories,$totalCalories_kCal,kcal," +
                 "avg_speed,$averageSpeed_mPerSec,m/s,max_speed,$maxSpeed_mPerSec,m/s," +
                 "avg_heart_rate,$averageHeartRate_bpm,bpm,max_heart_rate,$maxHeartRate_bpm," +
