@@ -1,0 +1,33 @@
+FIT CSV Tool - Protocol 2.0 Profile 21.53 Release
+Usage: java -jar FitCSVTool.jar <options> <file>
+      -b <FIT FILE> <CSV FILE>  FIT binary to CSV.
+      -c <CSV FILE> <FIT FILE>  CSV to FIT binary.
+      -t Enable file verification tests.
+      -d Enable debug output.
+      -i Check integrity of FIT file before decoding.
+      -s Show invalid fields in the CSV file.
+      -se Show invalid fields in the CSV file as empty cells.
+      -u Hide unknown data and report statistics on how much is hidden.
+      -x Print byte values as hexadecimal.
+      -ex Changes the behaviour of the --defn and --data options to
+          filter out the messages listed. The default behaviour without
+          this flag is to exclude all messages except those listed
+          after the --defn and the --data options.
+      -pN Encode file using Protocol Version <N>. Default: 1
+      -e Print enum values as their corresponding String labels when
+          possible. Note: CSV files generated with this option will not
+          be able to be converted back into .FIT files.
+      -re Remove expanded fields from CSV output. This removes fields
+          that have been generated through component expansion and
+          which do not exist in the source .FIT file
+      --defn <MESSAGE_STRING_0,MESSAGE_STRING_1,...> Narrows down the
+          definitions output to CSV. Use 'none' for no definitions
+          When this option is used only the message definitions
+          in the comma separated list will be written to the CSV.
+          eg. --defn file_capabilities,record,file_creator
+          Note: This option is only compatible with the -b option.
+      --data <MESSAGE_STRING_0,MESSAGE_STRING_1,...> Narrows down the
+          data output to CSV. When this option is used only the data
+          in the comma separated list will be written to the csv.
+          eg. --data file_capabilities,record,file_creator
+          Note: This option is only compatible with the -b option.
