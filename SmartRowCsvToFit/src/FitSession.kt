@@ -1,8 +1,8 @@
 data class FitSession(
-    val timestamp_garminEpochSeconds: Long,
+    val timestamp_garminEpochSeconds: Int,
     val event: Int,
     val eventType: Int,
-    val startTime_garminEpochSeconds: Long,
+    val startTime_garminEpochSeconds: Int,
     val sport: Int,
     val subSport: Int,
     val totalElapsedTime_s: Double,

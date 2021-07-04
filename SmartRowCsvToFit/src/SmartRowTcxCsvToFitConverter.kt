@@ -4,6 +4,7 @@ private const val SUB_SPORT_INDOOR_ROWING = 14
 
 private const val EVENT_TIMER = 0
 private const val EVENT_TYPE_START = 0
+private const val EVENT_TYPE_STOP = 1
 
 class SmartRowTcxCsvToFitConverter(tcxPath: String, csvPath: String) {
     private val tcx = TrainingCenterDatabase.from(tcxPath)
@@ -34,10 +35,10 @@ class SmartRowTcxCsvToFitConverter(tcxPath: String, csvPath: String) {
 
     private fun sessionDefinition() = FitSession.definition
     private fun sessionData() = FitSession(
-        timestamp_garminEpochSeconds = tcx.startTime_garminEpochSeconds(),
+        timestamp_garminEpochSeconds = tcx.startTime_garminEpochSeconds().toInt(),
         event = EVENT_TIMER,
         eventType = EVENT_TYPE_START,
-        startTime_garminEpochSeconds = tcx.startTime_garminEpochSeconds(),
+        startTime_garminEpochSeconds = tcx.startTime_garminEpochSeconds().toInt(),
         sport = SPORT_FITNESS_EQUIPMENT,
         subSport = SUB_SPORT_INDOOR_ROWING,
         totalElapsedTime_s = tcx.totalElapsedTime_s(),
@@ -60,12 +61,32 @@ class SmartRowTcxCsvToFitConverter(tcxPath: String, csvPath: String) {
         enhancedMaxSpeed_mPerSec = csvRows.maxSpeed_mPerSec()
     )
 
+    private fun eventDefinition() = FitEvent.definition
 
+    private fun startEvent() = FitEvent(
+        timestamp_garminEpochSeconds = tcx.startTime_garminEpochSeconds().toInt(),
+        event = EVENT_TIMER,
+        eventType = EVENT_TYPE_START,
+        timerTrigger = 0,
+        eventGroup = 0
+    )
+    
+    private fun endEvent() = FitEvent(
+        timestamp_garminEpochSeconds =
+        tcx.endTime_garminEpochSeconds().toInt(),
+        event = EVENT_TIMER,
+        eventType = EVENT_TYPE_STOP,
+        timerTrigger = 0,
+        eventGroup = 0
+    )
 }
 
 
 private fun TrainingCenterDatabase.startTime_garminEpochSeconds() =
     laps.first().startTime_garminEpochSecond
+
+private fun TrainingCenterDatabase.endTime_garminEpochSeconds() =
+    startTime_garminEpochSeconds() + totalElapsedTime_s()
 
 private val TrainingCenterDatabase.laps get() = activities.first().laps
 
